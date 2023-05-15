@@ -8,15 +8,15 @@
  *
  */
 
-#include "arraysum.hxx"
-
 #include <arraysumfunctor.hxx>
+
+#if SC_USE_SSE2
+
+#include "arraysum.hxx"
 
 #include <tools/simdsupport.hxx>
 
-#include <stdlib.h>
-
-#if SC_USE_SSE2
+#include <cstdlib>
 
 namespace sc::op
 {

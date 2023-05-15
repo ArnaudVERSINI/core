@@ -14,6 +14,7 @@
 #include "kahan.hxx"
 #include "arraysumfunctor.hxx"
 #include <formula/errorcodes.hxx>
+#include <tools/simdsupport.hxx>
 
 namespace sc::op
 {
@@ -25,10 +26,16 @@ namespace sc::op
 // Whenever we raise baseline to e.g. AVX, this may get
 // replaced with AVX code (get it from git history).
 // Do it similarly with other platforms.
-#if defined(X86_64) || (defined(X86) && defined(_WIN32))
+#if defined(LO_AVX_AVAILABLE)
+#define SC_USE_AVX 1
+#define SC_USE_SSE2 0
+KahanSum executeAVX(size_t& i, size_t nSize, const double* pCurrent);
+#elif defined(LO_SSE2_AVAILABLE)
+#define SC_USE_AVX 0
 #define SC_USE_SSE2 1
 KahanSum executeSSE2(size_t& i, size_t nSize, const double* pCurrent);
 #else
+#define SC_USE_AVX 0
 #define SC_USE_SSE2 0
 #endif
 
@@ -69,7 +76,9 @@ static inline KahanSum executeUnrolled(size_t& i, size_t nSize, const double* pC
   */
 static inline KahanSum executeFast(size_t& i, size_t nSize, const double* pCurrent)
 {
-#if SC_USE_SSE2
+#if SC_USE_AVX
+    return executeAVX(i, nSize, pCurrent);
+#elif SC_USE_SSE2
     return executeSSE2(i, nSize, pCurrent);
 #else
     return executeUnrolled(i, nSize, pCurrent);
