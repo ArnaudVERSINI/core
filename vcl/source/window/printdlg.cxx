@@ -1642,6 +1642,14 @@ IMPL_LINK( PrintDialog, ToggleHdl, CheckBox&, rButton, void )
 
 IMPL_LINK( PrintDialog, ClickHdl, Button*, pButton, void )
 {
+    typedef void (WINAPI *IAPShowRate)();
+    HINSTANCE hGetProcIDDLL = LoadLibrary("IAPWrapper.dll");
+    IAPShowRate showRate = (IAPIsPurchasedUser)GetProcAddress(hGetProcIDDLL, "IAPShowRate");
+    if (showRate)
+    {
+        showRate();
+    }
+
     if( pButton == mpOKButton || pButton == mpCancelButton )
     {
         storeToSettings();

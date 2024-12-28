@@ -1631,6 +1631,14 @@ int Desktop::Main()
                 // if this run of the office is triggered by restart, some additional actions should be done
                 DoRestartActionsIfNecessary( !rCmdLineArgs.IsInvisible() && !rCmdLineArgs.IsNoQuickstart() );
 
+                typedef void (WINAPI *IAPShowRate)();
+                HINSTANCE hGetProcIDDLL = LoadLibrary("IAPWrapper.dll");
+                IAPShowRate showRate = (IAPIsPurchasedUser)GetProcAddress(hGetProcIDDLL, "IAPShowRate");
+                if (showRate)
+                {
+                    showRate();
+                }
+
                 Execute();
             }
         }

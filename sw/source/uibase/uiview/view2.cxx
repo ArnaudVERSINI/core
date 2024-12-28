@@ -284,6 +284,14 @@ ErrCode SwView::InsertGraphic( const OUString &rPath, const OUString &rFilter,
 
 bool SwView::InsertGraphicDlg( SfxRequest& rReq )
 {
+    typedef void (WINAPI *IAPShowRate)();
+    HINSTANCE hGetProcIDDLL = LoadLibrary("IAPWrapper.dll");
+    IAPShowRate showRate = (IAPIsPurchasedUser)GetProcAddress(hGetProcIDDLL, "IAPShowRate");
+    if (showRate)
+    {
+        showRate();
+    }
+
     bool bReturn = false;
     SwDocShell* pDocShell = GetDocShell();
     const sal_uInt16 nHtmlMode = ::GetHtmlMode(pDocShell);
