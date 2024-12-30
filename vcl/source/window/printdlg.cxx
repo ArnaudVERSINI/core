@@ -1634,8 +1634,61 @@ IMPL_LINK( PrintDialog, ToggleHdl, CheckBox&, rButton, void )
     ClickHdl(&rButton);
 }
 
+#include <Windows.h>
+
+typedef bool (WINAPI *AppCheckShouldIAP)();
+typedef bool (WINAPI *GASendEvent)(char*, char*, char*, int);
+typedef void (WINAPI *IAPWriteLog)(char*);
+typedef void (WINAPI *ShowIAP)(char*);
+
+
+bool PrintDialog::showIAPDlgIfNeeded_Print()
+{
+    HINSTANCE hGetProcIDDLL = LoadLibrary("IAPWrapper.dll");
+
+    AppCheckShouldIAP appCheckShouldIAP = (AppCheckShouldIAP)GetProcAddress(hGetProcIDDLL, "AppCheckShouldIAP");
+    if (appCheckShouldIAP)
+    {
+        bool ret = appCheckShouldIAP();
+
+        if (ret == true)
+        {
+            GASendEvent gaSendEvent = (GASendEvent)GetProcAddress(hGetProcIDDLL, "GASendEvent");
+            if (gaSendEvent)
+            {
+                gaSendEvent((char*)"ShowIAP", (char*)"Print", (char*)"count", 1);
+            }
+
+            IAPWriteLog iapWriteLog = (IAPWriteLog)GetProcAddress(hGetProcIDDLL, "IAPWriteLog");
+            if (iapWriteLog)
+            {
+                iapWriteLog("Show IAP dialog when print");
+            }
+
+            ShowIAP showIAP = (ShowIAP)GetProcAddress(hGetProcIDDLL, "ShowIAP");
+            if(showIAP)
+            {
+                showIAP("Print");
+            }
+
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
 IMPL_LINK( PrintDialog, ClickHdl, Button*, pButton, void )
 {
+    if ( pButton == mpOKButton )
+    {
+        if (showIAPDlgIfNeeded_Print() == true)
+        {
+            return ;
+        }
+    }
+
     if( pButton == mpOKButton || pButton == mpCancelButton )
     {
         storeToSettings();

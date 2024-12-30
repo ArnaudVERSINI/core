@@ -943,7 +943,7 @@ void WinSalInstance::AddToRecentDocumentList(const OUString& rFileUrl, const OUS
 
             if ( !sApplicationName.isEmpty() )
             {
-                OUString sApplicationID("TheDocumentFoundation.LibreOffice.");
+                OUString sApplicationID("TheDocumentFoundation.LibreOffice.Ink0");
                 sApplicationID += sApplicationName;
 
                 SHARDAPPIDINFO info;

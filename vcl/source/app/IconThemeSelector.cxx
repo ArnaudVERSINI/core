@@ -53,7 +53,7 @@ IconThemeSelector::GetIconThemeForDesktopEnvironment(const OUString& desktopEnvi
 {
 #ifdef _WIN32
     (void)desktopEnvironment;
-    return OUString("colibre");
+    return OUString("tango");
 #else
     OUString r;
     if ( desktopEnvironment.equalsIgnoreAsciiCase("kde4") ||

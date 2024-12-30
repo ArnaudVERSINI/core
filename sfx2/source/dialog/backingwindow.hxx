@@ -70,8 +70,8 @@ class BackingWindow : public vcl::Window, public VclBuilderContainer
     VclPtr<PushButton> mpDBAllButton;
     VclPtr<PushButton> mpMathAllButton;
 
-    VclPtr<PushButton> mpHelpButton;
-    VclPtr<PushButton> mpExtensionsButton;
+//    VclPtr<PushButton> mpHelpButton;
+//    VclPtr<PushButton> mpExtensionsButton;
 
     VclPtr<VclBox> mpAllButtonsBox;
     VclPtr<VclBox> mpButtonsBox;

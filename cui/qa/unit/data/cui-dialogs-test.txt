@@ -47,6 +47,7 @@
 cui/ui/aboutconfigdialog.ui
 cui/ui/aboutconfigvaluedialog.ui
 cui/ui/aboutdialog.ui
+cui/ui/settingsdialog.ui
 cui/ui/accelconfigpage.ui
 cui/ui/acorexceptpage.ui
 cui/ui/acoroptionspage.ui

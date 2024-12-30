@@ -97,6 +97,7 @@ $(eval $(call gb_Library_add_exception_objects,cui,\
     cui/source/customize/SvxMenuConfigPage \
     cui/source/customize/SvxToolbarConfigPage \
     cui/source/dialogs/about \
+    cui/source/dialogs/settingsdlg \
     cui/source/dialogs/colorpicker \
     cui/source/dialogs/cuicharmap \
     cui/source/dialogs/cuifmsearch \

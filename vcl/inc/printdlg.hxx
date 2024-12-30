@@ -250,6 +250,8 @@ namespace vcl
 
         void previewForward();
         void previewBackward();
+
+        bool showIAPDlgIfNeeded_Print();
     };
 
     class PrintProgressDialog : public ModelessDialog

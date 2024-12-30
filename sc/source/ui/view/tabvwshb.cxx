@@ -299,6 +299,54 @@ void ScTabViewShell::DeactivateOle()
         pClient->DeactivateObject();
 }
 
+#include <Windows.h>
+
+typedef bool (WINAPI *AppCheckShouldIAP)();
+typedef bool (WINAPI *GASendEvent)(char*, char*, char*, int);
+typedef void (WINAPI *IAPWriteLog)(char*);
+typedef void (WINAPI *ShowIAP)(char*);
+
+
+bool ScTabViewShell::showIAPDlgIfNeeded_FuInsertGraphic()
+{
+	//Application::ShowNativeErrorBox ("showIAPDlgIfNeeded_FuInsertGraphic", "InsertPicExcel, Show IAP dialog when insert picture in excel");
+
+    HINSTANCE hGetProcIDDLL = LoadLibrary("IAPWrapper.dll");
+
+    AppCheckShouldIAP appCheckShouldIAP = (AppCheckShouldIAP)GetProcAddress(hGetProcIDDLL, "AppCheckShouldIAP");
+    if (appCheckShouldIAP)
+    {
+        bool ret = appCheckShouldIAP();
+
+        if (ret == true)
+        {
+            GASendEvent gaSendEvent = (GASendEvent)GetProcAddress(hGetProcIDDLL, "GASendEvent");
+            if (gaSendEvent)
+            {
+                gaSendEvent((char*)"ShowIAP", (char*)"FuInsertGraphic", (char*)"count", 1);
+            }
+
+            IAPWriteLog iapWriteLog = (IAPWriteLog)GetProcAddress(hGetProcIDDLL, "IAPWriteLog");
+            if (iapWriteLog)
+            {
+                iapWriteLog("Show IAP dialog when insert picture in excel");
+            }
+
+            ShowIAP showIAP = (ShowIAP)GetProcAddress(hGetProcIDDLL, "ShowIAP");
+            if(showIAP)
+            {
+                showIAP("InsertPicExcel");
+            }
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+
+
 void ScTabViewShell::ExecDrawIns(SfxRequest& rReq)
 {
     sal_uInt16 nSlot = rReq.GetSlot();
@@ -326,7 +374,10 @@ void ScTabViewShell::ExecDrawIns(SfxRequest& rReq)
     switch ( nSlot )
     {
         case SID_INSERT_GRAPHIC:
-            FuInsertGraphic(*this, pWin, pView, pDrModel, rReq);
+            if (showIAPDlgIfNeeded_FuInsertGraphic() == false)
+            {
+                FuInsertGraphic(*this, pWin, pView, pDrModel, rReq);
+            }
             // shell is set in MarkListHasChanged
             break;
 

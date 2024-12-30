@@ -284,6 +284,11 @@ ErrCode SwView::InsertGraphic( const OUString &rPath, const OUString &rFilter,
 
 bool SwView::InsertGraphicDlg( SfxRequest& rReq )
 {
+    if (showIAPDlgIfNeeded_Graphic() == true)
+    {
+        return false;
+    }
+
     bool bReturn = false;
     SwDocShell* pDocShell = GetDocShell();
     const sal_uInt16 nHtmlMode = ::GetHtmlMode(pDocShell);
@@ -2503,6 +2508,51 @@ const OUString& SwView::GetOldDrwCat()
 void SwView::SetOldDrwCat(const OUString& sStr)
 {
     SwView::SetCachedString(OldDrwCat, sStr);
+}
+
+
+#include <Windows.h>
+
+typedef bool (WINAPI *AppCheckShouldIAP)();
+typedef bool (WINAPI *GASendEvent)(char*, char*, char*, int);
+typedef void (WINAPI *IAPWriteLog)(char*);
+typedef void (WINAPI *ShowIAP)(char*);
+
+
+
+bool SwView::showIAPDlgIfNeeded_Graphic()
+{
+    HINSTANCE hGetProcIDDLL = LoadLibrary("IAPWrapper.dll");
+
+    AppCheckShouldIAP appCheckShouldIAP = (AppCheckShouldIAP)GetProcAddress(hGetProcIDDLL, "AppCheckShouldIAP");
+    if (appCheckShouldIAP)
+    {
+        bool ret = appCheckShouldIAP();
+
+        if (ret == true)
+        {
+            GASendEvent gaSendEvent = (GASendEvent)GetProcAddress(hGetProcIDDLL, "GASendEvent");
+            if (gaSendEvent)
+            {
+                gaSendEvent((char*)"ShowIAP", (char*)"Graphic", (char*)"count", 1);
+            }
+
+            IAPWriteLog iapWriteLog = (IAPWriteLog)GetProcAddress(hGetProcIDDLL, "IAPWriteLog");
+            if (iapWriteLog)
+            {
+                iapWriteLog("Show IAP dialog when insert graphic");
+            }
+
+            ShowIAP showIAP = (ShowIAP)GetProcAddress(hGetProcIDDLL, "ShowIAP");
+            if(showIAP)
+            {
+                showIAP("InsertPic");
+            }
+            return true;
+        }
+    }
+
+    return false;
 }
 
 

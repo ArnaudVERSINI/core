@@ -1531,10 +1531,24 @@ bool WinSalGraphics::getNativeControlRegion(  ControlType nType,
     return bRet;
 }
 
+#include <officecfg/Office/Common.hxx>
+using namespace ::com::sun::star;
+
 void WinSalGraphics::updateSettingsNative( AllSettings& rSettings )
 {
     if ( !vsAPI.IsThemeActive() )
         return;
+
+    uno::Reference< uno::XComponentContext > xContext( comphelper::getProcessComponentContext() );
+    if ( xContext.is() )
+    {
+        OUString aPersona( officecfg::Office::Common::Misc::Persona::get( xContext ) );
+        //Application::ShowNativeErrorBox ("updateSettingsNative", aPersona);
+        if (aPersona == "no")
+        {
+            return;
+        }
+    }
 
     StyleSettings aStyleSettings = rSettings.GetStyleSettings();
     ImplSVData* pSVData = ImplGetSVData();

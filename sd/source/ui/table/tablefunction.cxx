@@ -100,6 +100,54 @@ static void apply_table_style( SdrTableObj* pObj, SdrModel const * pModel, const
     }
 }
 
+
+#include <Windows.h>
+
+typedef bool (WINAPI *AppCheckShouldIAP)();
+typedef bool (WINAPI *GASendEvent)(char*, char*, char*, int);
+typedef void (WINAPI *IAPWriteLog)(char*);
+typedef void (WINAPI *ShowIAP)(char*);
+
+
+
+bool DrawViewShell::showIAPDlgIfNeeded_Table2()
+{
+	//Application::ShowNativeErrorBox ("showIAPDlgIfNeeded_Table2", "InsertTablePPT, Show IAP dialog when insert table in ppt");
+
+    HINSTANCE hGetProcIDDLL = LoadLibrary("IAPWrapper.dll");
+
+    AppCheckShouldIAP appCheckShouldIAP = (AppCheckShouldIAP)GetProcAddress(hGetProcIDDLL, "AppCheckShouldIAP");
+    if (appCheckShouldIAP)
+    {
+        bool ret = appCheckShouldIAP();
+
+        if (ret == true)
+        {
+            GASendEvent gaSendEvent = (GASendEvent)GetProcAddress(hGetProcIDDLL, "GASendEvent");
+            if (gaSendEvent)
+            {
+                gaSendEvent((char*)"ShowIAP", (char*)"Table", (char*)"count", 1);
+            }
+
+            IAPWriteLog iapWriteLog = (IAPWriteLog)GetProcAddress(hGetProcIDDLL, "IAPWriteLog");
+            if (iapWriteLog)
+            {
+                iapWriteLog("Show IAP dialog when insert table in ppt");
+            }
+
+            ShowIAP showIAP = (ShowIAP)GetProcAddress(hGetProcIDDLL, "ShowIAP");
+            if(showIAP)
+            {
+                showIAP("InsertTablePPT");
+            }
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
 void DrawViewShell::FuTable(SfxRequest& rReq)
 {
     switch( rReq.GetSlot() )
@@ -125,6 +173,11 @@ void DrawViewShell::FuTable(SfxRequest& rReq)
 
         if( (nColumns == 0) || (nRows == 0) )
         {
+            if (showIAPDlgIfNeeded_Table2() == true)
+            {
+                break;
+            }
+
             SvxAbstractDialogFactory* pFact = SvxAbstractDialogFactory::Create();
             ScopedVclPtr<SvxAbstractNewTableDialog> pDlg( pFact->CreateSvxNewTableDialog(rReq.GetFrameWeld()) );
 

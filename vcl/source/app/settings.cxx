@@ -2920,6 +2920,8 @@ StyleSettings::DetermineIconTheme() const
 void
 StyleSettings::SetHighContrastMode(bool bHighContrast )
 {
+    bHighContrast = false;
+
     if (mxData->mbHighContrast == bHighContrast) {
         return;
     }

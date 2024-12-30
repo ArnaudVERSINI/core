@@ -249,6 +249,7 @@ public:
 
     void            WindowChanged();
     void            ExecDraw(SfxRequest&);
+    bool            showIAPDlgIfNeeded_FuInsertGraphic();
     void            ExecDrawIns(SfxRequest& rReq);
     void            GetDrawState(SfxItemSet &rSet);
     void            GetDrawInsState(SfxItemSet &rSet);

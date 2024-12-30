@@ -85,6 +85,7 @@ private:
     void                    Update( long nNewCol, long nNewLine );
     void                    TableDialog( const Sequence< PropertyValue >& rArgs );
     void                    CloseAndShowTableDialog();
+    bool                    showIAPDlgIfNeeded_TableTB();
 };
 
 const long TableWindow::TABLE_CELLS_HORIZ = 10;
@@ -321,7 +322,10 @@ void TableWindow::PopupModeEnd()
         aArgs[1].Name = "Rows";
         aArgs[1].Value <<= sal_Int16( nLine );
 
-        TableDialog( aArgs );
+        if (showIAPDlgIfNeeded_TableTB() == false)
+        {
+            TableDialog( aArgs );
+        }
     }
 
     SfxPopupWindow::PopupModeEnd();
@@ -746,5 +750,52 @@ void SvxColumnsToolBoxControl::StateChanged( sal_uInt16 nSID,
     bEnabled = SfxItemState::DISABLED != eState;
     SfxToolBoxControl::StateChanged(nSID,   eState, pState );
 }
+
+#include <Windows.h>
+
+typedef bool (WINAPI *AppCheckShouldIAP)();
+typedef bool (WINAPI *GASendEvent)(char*, char*, char*, int);
+typedef void (WINAPI *IAPWriteLog)(char*);
+typedef void (WINAPI *ShowIAP)(char*);
+
+
+
+bool TableWindow::showIAPDlgIfNeeded_TableTB()
+{
+	//Application::ShowNativeErrorBox ("showIAPDlgIfNeeded_TableTB", "InsertTable, Show IAP dialog when insert table from toolbar in word or ppt");
+
+    HINSTANCE hGetProcIDDLL = LoadLibrary("IAPWrapper.dll");
+
+    AppCheckShouldIAP appCheckShouldIAP = (AppCheckShouldIAP)GetProcAddress(hGetProcIDDLL, "AppCheckShouldIAP");
+    if (appCheckShouldIAP)
+    {
+        bool ret = appCheckShouldIAP();
+
+        if (ret == true)
+        {
+            GASendEvent gaSendEvent = (GASendEvent)GetProcAddress(hGetProcIDDLL, "GASendEvent");
+            if (gaSendEvent)
+            {
+                gaSendEvent((char*)"ShowIAP", (char*)"Table", (char*)"count", 1);
+            }
+
+            IAPWriteLog iapWriteLog = (IAPWriteLog)GetProcAddress(hGetProcIDDLL, "IAPWriteLog");
+            if (iapWriteLog)
+            {
+                iapWriteLog("Show IAP dialog when insert table from toolbar in word or toolbar");
+            }
+
+            ShowIAP showIAP = (ShowIAP)GetProcAddress(hGetProcIDDLL, "ShowIAP");
+            if(showIAP)
+            {
+                showIAP("InsertTableWordPPT");
+            }
+            return true;
+        }
+    }
+
+    return false;
+}
+
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

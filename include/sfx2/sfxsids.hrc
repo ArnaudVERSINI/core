@@ -95,6 +95,8 @@ class SfxDocumentInfoItem;
 #define SID_GETINVOLVED                     (SID_SFX_START + 425)
 #define SID_SHOW_LICENSE                    (SID_SFX_START + 1683)
 #define SID_SHOW_CREDITS                    (SID_SFX_START + 1711)
+#define SID_SHOW_FEEDBACK                   (SID_SFX_START + 1950)
+#define SID_SHOW_SETTINGS                   (SID_SFX_START + 1951)
 
 // default-ids for document
 #define SID_NEWDOC                          (SID_SFX_START + 500)

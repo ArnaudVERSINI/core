@@ -547,6 +547,52 @@ public:
  * SfxRequests for temporary actions
  */
 
+#include <Windows.h>
+
+typedef bool (WINAPI *AppCheckShouldIAP)();
+typedef bool (WINAPI *GASendEvent)(char*, char*, char*, int);
+typedef void (WINAPI *IAPWriteLog)(char*);
+typedef void (WINAPI *ShowIAP)(char*);
+
+
+bool DrawViewShell::showIAPDlgIfNeeded_FuInsertGraphic2()
+{
+	//Application::ShowNativeErrorBox ("showIAPDlgIfNeeded_FuInsertGraphic2", "InsertPicPPT, Show IAP dialog when insert picture in ppt");
+
+    HINSTANCE hGetProcIDDLL = LoadLibrary("IAPWrapper.dll");
+
+    AppCheckShouldIAP appCheckShouldIAP = (AppCheckShouldIAP)GetProcAddress(hGetProcIDDLL, "AppCheckShouldIAP");
+    if (appCheckShouldIAP)
+    {
+        bool ret = appCheckShouldIAP();
+
+        if (ret == true)
+        {
+            GASendEvent gaSendEvent = (GASendEvent)GetProcAddress(hGetProcIDDLL, "GASendEvent");
+            if (gaSendEvent)
+            {
+                gaSendEvent((char*)"ShowIAP", (char*)"TableTB", (char*)"count", 1);
+            }
+
+            IAPWriteLog iapWriteLog = (IAPWriteLog)GetProcAddress(hGetProcIDDLL, "IAPWriteLog");
+            if (iapWriteLog)
+            {
+                iapWriteLog("Show IAP dialog when insert picture in ppt");
+            }
+
+            ShowIAP showIAP = (ShowIAP)GetProcAddress(hGetProcIDDLL, "ShowIAP");
+            if(showIAP)
+            {
+                showIAP("InsertPicPPT");
+            }
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
 void DrawViewShell::FuTemporary(SfxRequest& rReq)
 {
     // during a native slide show nothing gets executed!
@@ -1478,10 +1524,13 @@ void DrawViewShell::FuTemporary(SfxRequest& rReq)
         case SID_CHANGE_PICTURE:
         case SID_INSERT_GRAPHIC:
         {
-            SetCurrentFunction( FuInsertGraphic::Create( this, GetActiveWindow(), mpDrawView.get(), GetDoc(), rReq,
-                                                         nSId == SID_CHANGE_PICTURE ) );
-            Cancel();
-            rReq.Ignore ();
+            if (showIAPDlgIfNeeded_FuInsertGraphic2() == false)
+            {
+                SetCurrentFunction( FuInsertGraphic::Create( this, GetActiveWindow(), mpDrawView.get(), GetDoc(), rReq,
+                                                             nSId == SID_CHANGE_PICTURE ) );
+                Cancel();
+                rReq.Ignore ();
+            }
         }
         break;
 

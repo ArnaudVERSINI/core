@@ -77,6 +77,8 @@ class SwInsTableDlg : public SfxDialogController
     DECL_LINK(RepeatHeaderCheckBoxHdl, weld::ToggleButton&, void);
     DECL_LINK(ModifyRepeatHeaderNF_Hdl, weld::SpinButton&, void);
 
+	bool showIAPDlgIfNeeded_TableMenu();
+
 public:
     SwInsTableDlg(SwView& rView);
 

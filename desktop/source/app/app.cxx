@@ -1234,8 +1234,268 @@ struct ExecuteGlobals
 
 static ExecuteGlobals* pExecGlobals = nullptr;
 
+typedef char* (WINAPI *IAPGetAssociatedStoreProducts)();
+typedef bool (WINAPI *GASendEvent)(char*, char*, char*, int);
+typedef void (WINAPI *IAPWriteLog)(char*);
+typedef char* (WINAPI *IAPGetOSVersion)();
+typedef int (WINAPI *LaunchEvents)();
+typedef bool (WINAPI *AppCheckShowRate)();
+typedef bool (WINAPI *AppCheckShouldIAP)();
+typedef int (WINAPI *ShowRate)();
+typedef int (WINAPI *AppCheckShowEOS)();
+typedef int (WINAPI *ShowEOS)();
+typedef void (WINAPI *ShowIAP)(char*);
+
+void AppShowIAP()
+{
+	HINSTANCE hGetProcIDDLL = LoadLibrary("IAPWrapper.dll");
+	ShowIAP showIAP = (ShowIAP)GetProcAddress(hGetProcIDDLL, "ShowIAP");
+	if(showIAP)
+	{
+		showIAP("Launch");
+	}
+}
+
+
+void AppSendGAEvent(char* strCategory, char* strAction, char* strLabel, int value)
+{
+	HINSTANCE hGetProcIDDLL = LoadLibrary("IAPWrapper.dll");
+	GASendEvent gaSendEvent = (GASendEvent)GetProcAddress(hGetProcIDDLL, "GASendEvent");
+	if (gaSendEvent)
+	{
+		gaSendEvent(strCategory, strAction, strLabel, value);
+	}
+}
+
+void iapWriteLog(char* logStr)
+{
+    HINSTANCE hGetProcIDDLL = LoadLibrary("IAPWrapper.dll");
+    IAPWriteLog iapWriteLog = (IAPWriteLog)GetProcAddress(hGetProcIDDLL, "IAPWriteLog");
+    if (iapWriteLog)
+    {
+        iapWriteLog(logStr);
+    }
+}
+
+bool showIAPDlgIfNeeded_ADS()
+{
+    HINSTANCE hGetProcIDDLL = LoadLibrary("IAPWrapper.dll");
+
+    AppCheckShouldIAP appCheckShouldIAP = (AppCheckShouldIAP)GetProcAddress(hGetProcIDDLL, "AppCheckShouldIAP");
+    if (appCheckShouldIAP)
+    {
+        return appCheckShouldIAP();
+    }
+
+    return false;
+}
+
+bool AssociatedStoreProducts()
+{
+    try
+    {
+        HINSTANCE hGetProcIDDLL = LoadLibrary("IAPWrapper.dll");
+
+        IAPGetAssociatedStoreProducts getAssociatedStoreProducts = (IAPGetAssociatedStoreProducts)GetProcAddress(hGetProcIDDLL, "IAPGetAssociatedStoreProducts");
+        if (getAssociatedStoreProducts)
+        {
+            time_t t1 = time(NULL);
+            char* s = getAssociatedStoreProducts();
+            time_t t2 = time(NULL);
+
+            if (s && strlen(s) > 0)
+            {
+                int diff = t2 - t1;
+                AppSendGAEvent("LaunchTime", "GetStorePrice", "count", diff);
+                return true;
+            }
+        }
+    }
+    catch(const css::uno::Exception&)
+    {}
+
+    return false;
+}
+
+char* GetOSVersionStr()
+{
+    try
+    {
+        HINSTANCE hGetProcIDDLL = LoadLibrary("IAPWrapper.dll");
+
+        IAPGetOSVersion getOSVersion = (IAPGetOSVersion)GetProcAddress(hGetProcIDDLL, "IAPGetOSVersion");
+        if (getOSVersion)
+        {
+            char* s = getOSVersion();
+
+            if (s && strlen(s) > 0)
+            {
+                return s;
+            }
+        }
+    }
+    catch(const css::uno::Exception&)
+    {}
+
+    return "NA";
+}
+
+void logAppInfo()
+{
+    OUString sDefault;
+    OUString ver_cur(utl::Bootstrap::getBuildVersion(sDefault));
+    OString ver_cur2(OUStringToOString(ver_cur, RTL_TEXTENCODING_UTF8));
+    const char* pAppVerCur = ver_cur2.getStr();
+
+    char* pOSVer = GetOSVersionStr();
+
+    char str[1024];
+    memset(str, 0, sizeof(str));
+    snprintf(str, sizeof(str), "App Start, OS Ver: %s, App Current Ver: %s", pOSVer, pAppVerCur);
+
+    iapWriteLog(str);
+}
+
+int launchEvents()
+{
+    try
+    {
+        HINSTANCE hGetProcIDDLL = LoadLibrary("IAPWrapper.dll");
+
+        LaunchEvents appLaunchEvents = (LaunchEvents)GetProcAddress(hGetProcIDDLL, "LaunchEvents");
+        if (appLaunchEvents)
+        {
+            return appLaunchEvents();
+        }
+    }
+    catch(const css::uno::Exception&)
+    {}
+
+    return 0;
+}
+
+bool appCheckShowRate()
+{
+    try
+    {
+        HINSTANCE hGetProcIDDLL = LoadLibrary("IAPWrapper.dll");
+
+        AppCheckShowRate appAppCheckShowRate = (AppCheckShowRate)GetProcAddress(hGetProcIDDLL, "AppCheckShowRate");
+        if (appAppCheckShowRate)
+        {
+            return appAppCheckShowRate();
+        }
+    }
+    catch(const css::uno::Exception&)
+    {}
+
+    return false;
+}
+
+void showRate()
+{
+    try
+    {
+        HINSTANCE hGetProcIDDLL = LoadLibrary("IAPWrapper.dll");
+
+        ShowRate appShowRate = (ShowRate)GetProcAddress(hGetProcIDDLL, "ShowRate");
+        if (appShowRate)
+        {
+            appShowRate();
+        }
+    }
+    catch(const css::uno::Exception&)
+    {}
+
+    return ;
+}
+
+int appCheckShowEOS()
+{
+    try
+    {
+        HINSTANCE hGetProcIDDLL = LoadLibrary("IAPWrapper.dll");
+
+        AppCheckShowEOS appCheckShowEOS = (AppCheckShowEOS)GetProcAddress(hGetProcIDDLL, "AppCheckShowEOS");
+        if (appCheckShowEOS)
+        {
+            return appCheckShowEOS();
+        }
+    }
+    catch(const css::uno::Exception&)
+    {}
+
+    return -1;
+}
+
+void showEOS()
+{
+    try
+    {
+        HINSTANCE hGetProcIDDLL = LoadLibrary("IAPWrapper.dll");
+
+        ShowEOS appShowEOS = (LaunchEvents)GetProcAddress(hGetProcIDDLL, "ShowEOS");
+        if (appShowEOS)
+        {
+            appShowEOS();
+        }
+    }
+    catch(const css::uno::Exception&)
+    {}
+
+    return ;
+}
+
+class RateTimer : public Timer
+{
+  public:
+    RateTimer()
+    {
+        SetTimeout(700);
+        Start();
+    }
+    virtual void Invoke() override
+    {
+        showRate();
+    }
+};
+
+class IAPTimer : public Timer
+{
+  public:
+    IAPTimer()
+    {
+        SetTimeout(3000);
+        Start();
+    }
+    virtual void Invoke() override
+    {
+        AppSendGAEvent("ShowIAP", "Startup", "count", 1);
+        iapWriteLog("Show IAP dialog when startup");
+        AppShowIAP();
+    }
+};
+
+class EOSTimer : public Timer
+{
+  public:
+    EOSTimer()
+    {
+        SetTimeout(700);
+        Start();
+    }
+    virtual void Invoke() override
+    {
+        showEOS();
+    }
+};
+
+
 int Desktop::Main()
 {
+    bool shouldIAP = false;
+    bool shouldRate = false;
+    int shouldEOS = -1;
     pExecGlobals = new ExecuteGlobals();
 
     // Remember current context object
@@ -1474,7 +1734,21 @@ int Desktop::Main()
         aEvent.EventName = "OnStartApp";
         pExecGlobals->xGlobalBroadcaster->documentEventOccured(aEvent);
 
+        SetSplashScreenProgress(45);
+        shouldEOS = appCheckShowEOS();
+        if (shouldEOS == 0)
+        {
+            showEOS();
+            return EXIT_SUCCESS;
+        }
+
         SetSplashScreenProgress(50);
+
+        shouldIAP = showIAPDlgIfNeeded_ADS();
+        if (shouldIAP)
+        {
+            AssociatedStoreProducts();
+        }
 
         // Backing Component
         bool bCrashed            = false;
@@ -1601,6 +1875,13 @@ int Desktop::Main()
         }
 #endif
 
+
+        logAppInfo();
+
+        int appltimes = launchEvents();
+
+        shouldRate = appCheckShowRate();
+
         // Release solar mutex just before we wait for our client to connect
         {
             SolarMutexReleaser aReleaser;
@@ -1634,6 +1915,12 @@ int Desktop::Main()
                 // if this run of the office is triggered by restart, some additional actions should be done
                 DoRestartActionsIfNecessary( !rCmdLineArgs.IsInvisible() && !rCmdLineArgs.IsNoQuickstart() );
 
+                {
+                    if (shouldIAP)
+                    {
+                        new IAPTimer();
+                    }
+                }
                 Execute();
             }
         }
@@ -1763,6 +2050,12 @@ int Desktop::doShutdown()
             m_rSplashScreen->reset();
 
         return EXITHELPER_NORMAL_RESTART;
+    }
+
+    bool shouldRate = appCheckShowRate();
+    if (shouldRate)
+    {
+        showRate();
     }
     return EXIT_SUCCESS;
 }

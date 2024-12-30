@@ -66,6 +66,7 @@ using namespace ::com::sun::star;
 AboutDialog::AboutDialog(vcl::Window* pParent)
     : SfxModalDialog(pParent, "AboutDialog", "cui/ui/aboutdialog.ui")
 {
+/*
     get(m_pLogoReplacement, "logoreplacement");
     get(m_pLogoImage, "logo");
     get(m_pVersion, "version");
@@ -99,6 +100,7 @@ AboutDialog::AboutDialog(vcl::Window* pParent)
     // Connect all handlers
     m_pCreditsButton->SetClickHdl( LINK( this, AboutDialog, HandleClick ) );
     m_pWebsiteButton->SetClickHdl( LINK( this, AboutDialog, HandleClick ) );
+*/
 
     get<PushButton>("close")->GrabFocus();
 }

@@ -133,6 +133,7 @@
 #include <unotools/confignode.hxx>
 #include <officecfg/Setup.hxx>
 #include <memory>
+#include <windows.h>
 
 #include <openuriexternally.hxx>
 
@@ -591,6 +592,41 @@ void SfxApplication::MiscExec_Impl( SfxRequest& rReq )
             if ( pHelp )
             {
                 pHelp->Start(".uno:HelpIndex", static_cast<vcl::Window*>(nullptr)); // show start page
+                bDone = true;
+            }
+            break;
+        }
+
+        case SID_SHOW_FEEDBACK:
+        {
+            {
+                try
+                {
+                    typedef int (WINAPI *ShowFeedback)();
+
+                    HINSTANCE hGetProcIDDLL = LoadLibrary("IAPWrapper.dll");
+
+                    ShowFeedback appShowFeedback = (ShowFeedback)GetProcAddress(hGetProcIDDLL, "ShowFeedback");
+                    if (appShowFeedback)
+                    {
+                        appShowFeedback();
+                    }
+                }
+                catch(const css::uno::Exception&)
+                {}
+
+                bDone = true;
+            }
+            break;
+        }
+
+        case SID_SHOW_SETTINGS:
+        {
+            SfxAbstractDialogFactory* pFact = SfxAbstractDialogFactory::Create();
+            if ( pFact )
+            {
+                ScopedVclPtr<VclAbstractDialog> pDlg(pFact->CreateVclDialog( nullptr, SID_SHOW_SETTINGS ));
+                pDlg->Execute();
                 bDone = true;
             }
             break;

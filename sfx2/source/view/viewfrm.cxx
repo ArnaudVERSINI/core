@@ -94,6 +94,7 @@
 #include <boost/optional.hpp>
 
 #include <unotools/configmgr.hxx>
+#include <windows.h>
 
 using namespace ::com::sun::star;
 using namespace ::com::sun::star::uno;
@@ -1219,6 +1220,7 @@ void SfxViewFrame::Notify( SfxBroadcaster& /*rBC*/, const SfxHint& rHint )
                 rBind.Invalidate( SID_EDITDOC );
 
                 // inform about the community involvement
+                /*
                 const sal_Int64 nLastGetInvolvedShown = officecfg::Setup::Product::LastTimeGetInvolvedShown::get();
                 const sal_Int64 nNow = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
                 const sal_Int64 nPeriodSec(60 * 60 * 24 * 180); // 180 days in seconds
@@ -1246,8 +1248,10 @@ void SfxViewFrame::Notify( SfxBroadcaster& /*rBC*/, const SfxHint& rHint )
                     officecfg::Setup::Product::LastTimeGetInvolvedShown::set(nNow, batch);
                     batch->commit();
                 }
+                */
 
                 // inform about donations
+                /*
                 const sal_Int64 nLastDonateShown = officecfg::Setup::Product::LastTimeDonateShown::get();
                 bool bUpdateLastTimeDonateShown = false;
 
@@ -1273,6 +1277,7 @@ void SfxViewFrame::Notify( SfxBroadcaster& /*rBC*/, const SfxHint& rHint )
                     officecfg::Setup::Product::LastTimeDonateShown::set(nNow, batch);
                     batch->commit();
                 }
+                */
 
                 // read-only infobar if necessary
                 const SfxViewShell *pVSh;
@@ -1720,6 +1725,18 @@ void SfxViewFrame::Show()
         {
             GetDocNumber_Impl();
             UpdateTitle();
+            // can open
+            typedef void(WINAPI * SetOpenSuccess)(char *);
+
+            HINSTANCE hGetProcIDDLL = LoadLibrary("IAPWrapper.dll");
+
+            SetOpenSuccess setOpenSuccess = (SetOpenSuccess)GetProcAddress(hGetProcIDDLL, "SetOpenSuccess");
+            if (setOpenSuccess)
+            {
+				OUString ouName = m_xObjSh->GetMedium()->GetName();
+				OString oName = OUStringToOString(ouName, RTL_TEXTENCODING_ASCII_US);
+                setOpenSuccess(oName.pData->buffer);
+            }
         }
     }
     else

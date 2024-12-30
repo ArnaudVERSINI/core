@@ -90,10 +90,10 @@ BackingWindow::BackingWindow( vcl::Window* i_pParent ) :
     get(mpDBAllButton, "database_all");
     get(mpMathAllButton, "math_all");
 
-    get(mpHelpButton, "help");
+//    get(mpHelpButton, "help");
     //set an alternative help label that doesn't hotkey the H of the Help menu
-    mpHelpButton->SetText(get<Window>("althelplabel")->GetText());
-    get(mpExtensionsButton, "extensions");
+//    mpHelpButton->SetText(get<Window>("althelplabel")->GetText());
+//    get(mpExtensionsButton, "extensions");
 
     //Containers are invisible to cursor traversal
     //So on pressing "right" when in Help the
@@ -108,12 +108,14 @@ BackingWindow::BackingWindow( vcl::Window* i_pParent ) :
     //of a group, i.e. allow it to be grouped with the preceding
     //PushButton so when seen as a candidate by cursor travelling
     //it will be accepted as a continuation of the group.
+    /*
     WinBits nBits = mpExtensionsButton->GetStyle();
     nBits &= ~WB_GROUP;
     nBits |= WB_NOGROUP;
     mpExtensionsButton->SetStyle(nBits);
     assert(mpHelpButton->GetStyle() & WB_GROUP);
     assert(!(mpExtensionsButton->GetStyle() & WB_GROUP));
+    */
 
     get(mpAllButtonsBox, "all_buttons_box");
     get(mpButtonsBox, "buttons_box");
@@ -184,8 +186,8 @@ void BackingWindow::dispose()
     mpDrawAllButton.clear();
     mpDBAllButton.clear();
     mpMathAllButton.clear();
-    mpHelpButton.clear();
-    mpExtensionsButton.clear();
+//    mpHelpButton.clear();
+//    mpExtensionsButton.clear();
     mpAllButtonsBox.clear();
     mpButtonsBox.clear();
     mpSmallButtonsBox.clear();
@@ -267,7 +269,7 @@ void BackingWindow::initControls()
 
     checkInstalledModules();
 
-    mpExtensionsButton->SetClickHdl(LINK(this, BackingWindow, ExtLinkClickHdl));
+//    mpExtensionsButton->SetClickHdl(LINK(this, BackingWindow, ExtLinkClickHdl));
 
     // setup nice colors
     mpCreateLabel->SetControlForeground(maButtonsTextColor);
@@ -275,8 +277,8 @@ void BackingWindow::initControls()
     aFont.SetFontSize(Size(0, aFont.GetFontSize().Height() * fMultiplier));
     mpCreateLabel->SetControlFont(aFont);
 
-    mpHelpButton->SetControlForeground(maButtonsTextColor);
-    mpExtensionsButton->SetControlForeground(maButtonsTextColor);
+//    mpHelpButton->SetControlForeground(maButtonsTextColor);
+//    mpExtensionsButton->SetControlForeground(maButtonsTextColor);
 
     const Color aButtonsBackground = Color(officecfg::Office::Common::Help::StartCenter::StartCenterBackgroundColor::get());
 
@@ -511,8 +513,8 @@ IMPL_LINK(BackingWindow, ExtLinkClickHdl, Button*, pButton, void)
 {
     OUString aNode;
 
-    if (pButton == mpExtensionsButton)
-        aNode = "AddFeatureURL";
+//    if (pButton == mpExtensionsButton)
+//        aNode = "AddFeatureURL";
 
     if (!aNode.isEmpty())
     {

@@ -352,7 +352,7 @@ void RecentDocsView::Paint(vcl::RenderContext& rRenderContext, const tools::Rect
         const int nX = (rSize.Width() - rImgSize.Width())/2;
         int nY = (rSize.Height() - 3 * nTextHeight - rImgSize.Height())/2;
         Point aImgPoint(nX, nY);
-        rRenderContext.DrawImage(aImgPoint, rImgSize, maWelcomeImage);
+//        rRenderContext.DrawImage(aImgPoint, rImgSize, maWelcomeImage);
 
         nY = nY + rImgSize.Height();
         rRenderContext.DrawText(tools::Rectangle(0, nY, rSize.Width(), nY + nTextHeight),

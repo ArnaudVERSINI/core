@@ -88,6 +88,8 @@
 #include <hyphen.hxx>
 #include <thesdlg.hxx>
 #include <about.hxx>
+#include <settingsdlg.hxx>
+
 
 using namespace ::com::sun::star;
 using namespace ::com::sun::star::frame;
@@ -931,6 +933,15 @@ VclPtr<VclAbstractDialog> AbstractDialogFactory_Impl::CreateVclDialog( vcl::Wind
         case SID_ABOUT:
         {
             pDlg = VclPtr<AboutDialog>::Create(pParent);
+            break;
+        }
+        case SID_SHOW_FEEDBACK:
+        {
+            break;
+        }
+        case SID_SHOW_SETTINGS:
+        {
+            pDlg = VclPtr<SettingsDialog>::Create(pParent);
             break;
         }
         case SID_OPTIONS_TREEDIALOG :

@@ -200,11 +200,13 @@ public:
     void            ExecIMap( SfxRequest const & rReq );
     void            GetIMapState( SfxItemSet& rSet );
 
+    bool            showIAPDlgIfNeeded_FuInsertGraphic2();
     void            FuTemporary(SfxRequest& rReq);
     void            FuPermanent(SfxRequest& rReq);
     void            FuSupport(SfxRequest& rReq);
     void            FuDeleteSelectedObjects();
     void            FuSupportRotate(SfxRequest const & rReq);
+    bool            showIAPDlgIfNeeded_Table2();
     void            FuTable(SfxRequest& rReq);
 
     void            AttrExec (SfxRequest& rReq);

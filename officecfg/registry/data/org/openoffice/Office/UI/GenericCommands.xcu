@@ -5069,6 +5069,16 @@
           <value xml:lang="en-US">License Information</value>
         </prop>
       </node>
+      <node oor:name=".uno:ShowFeedback" oor:op="replace">
+        <prop oor:name="Label" oor:type="xs:string">
+          <value xml:lang="en-US">Contact Us</value>
+        </prop>
+      </node>
+      <node oor:name=".uno:ShowSettings" oor:op="replace">
+        <prop oor:name="Label" oor:type="xs:string">
+          <value xml:lang="en-US">Settings</value>
+        </prop>
+      </node>
       <node oor:name=".uno:ShowCredits" oor:op="replace">
         <prop oor:name="Label" oor:type="xs:string">
           <value xml:lang="en-US">%PRODUCTNAME Credits</value>
